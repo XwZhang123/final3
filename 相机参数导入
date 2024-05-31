@@ -1,0 +1,63 @@
+import numpy as np
+
+def generate_camera_params(num_cameras=5):
+    # 相机内参矩阵
+    fx = 800.0  # 焦距 x
+    fy = 800.0  # 焦距 y
+    cx = 400.0  # 主点 x
+    cy = 400.0  # 主点 y
+    K = np.array([
+        [fx, 0, cx],
+        [0, fy, cy],
+        [0, 0, 1]
+    ])
+    
+    # 生成相机外参矩阵 
+    cameras = []
+    for i in range(num_cameras):
+        theta = 2 * np.pi * i / num_cameras
+        R = np.array([
+            [np.cos(theta), 0, np.sin(theta)],
+            [0, 1, 0],
+            [-np.sin(theta), 0, np.cos(theta)]
+        ])
+        t = np.array([2.0 * np.sin(theta), 0, 2.0 * np.cos(theta)])  # 相机在圆周上
+        cameras.append((K, R, t))
+    
+    return cameras
+
+# 生成5个相机参数
+camera_params = generate_camera_params(num_cameras=5)
+
+# 打印相机参数
+for i, (K, R, t) in enumerate(camera_params):
+    print(f"Camera {i}:")
+    print("Intrinsic Matrix (K):")
+    print(K)
+    print("Rotation Matrix (R):")
+    print(R)
+    print("Translation Vector (t):")
+    print(t)
+    print()
+
+
+
+
+import json
+
+def save_camera_params(camera_params, filename="camera_params.json"):
+    data = []
+    for i, (K, R, t) in enumerate(camera_params):
+        camera_data = {
+            "camera_id": i,
+            "intrinsics": K.tolist(),
+            "rotation": R.tolist(),
+            "translation": t.tolist()
+        }
+        data.append(camera_data)
+    
+    with open(filename, 'w') as f:
+        json.dump(data, f, indent=4)
+
+# 保存相机参数
+save_camera_params(camera_params)
