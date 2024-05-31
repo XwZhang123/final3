@@ -1,0 +1,23 @@
+import numpy as np
+import cv2
+import glob
+
+def calculate_psnr(img1, img2):
+    mse = np.mean((img1 - img2) ** 2)
+    if mse == 0:
+        return 100
+    PIXEL_MAX = 255.0
+    return 20 * np.log10(PIXEL_MAX / np.sqrt(mse))
+
+# 读取测试图片和渲染结果
+test_images = glob.glob("./test_images/*.png")
+rendered_images = glob.glob("./logs/object_reconstruction/render/*.png")
+
+psnrs = []
+for test_image, rendered_image in zip(test_images, rendered_images):
+    img1 = cv2.imread(test_image)
+    img2 = cv2.imread(rendered_image)
+    psnr = calculate_psnr(img1, img2)
+    psnrs.append(psnr)
+
+print(f"Average PSNR: {np.mean(psnrs)}")
